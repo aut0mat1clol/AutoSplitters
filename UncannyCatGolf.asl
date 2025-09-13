@@ -37,9 +37,10 @@ start
 
 split
 {
-    
-    return current.isWorldFinished != old.isWorldFinished && current.isWorldFinished == 0;
-    
+    if(current.TotalTime != 0)
+    {
+        return current.isWorldFinished != old.isWorldFinished && current.isWorldFinished == 0;
+    }
 }
 
 reset
@@ -50,4 +51,5 @@ reset
 isLoading
 {
     return true;
+
 }
