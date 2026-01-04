@@ -42,10 +42,9 @@ isLoading
 
 split
 {   
-    if(current.activeScene != "IntroScene")
-    {
-        return current.activeScene != old.activeScene;
-    }
+    
+    return current.Menu != old.Menu && current.Menu == 5 && old.Menu == 0;
+    
 }
 
 reset
