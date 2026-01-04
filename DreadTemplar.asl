@@ -11,6 +11,7 @@ init
     vars.Helper.TryLoad = (Func<dynamic, bool>)(mono =>
     {
         vars.Helper["Menu"] = mono.Make<int>("MenuController", "instance", "curMenu");
+        vars.Helper["LoadingAct"] = mono.Make<bool>("GlobalVars", "instance", "isLoadAct");
         return true;
     });
 }
@@ -25,7 +26,7 @@ update
 
     print(current.activeScene);
     print("Loading - " + current.loadingScene);
-    print(current.Menu.ToString());
+    print(current.LoadingAct.ToString());
     // IntroScene 
 
 }
@@ -37,7 +38,7 @@ start
 
 isLoading
 {
-    return current.activeScene != current.loadingScene || current.Menu == 5;
+    return current.activeScene != current.loadingScene || current.Menu == 5 || current.LoadingAct;
 }
 
 split
