@@ -30,7 +30,7 @@ init
     gnamesSig.OnFound = (p, s, ptr) => ptr + 0x4 + p.ReadValue<int>(ptr);
 
     vars.gnamesPtr = scanner.Scan(gnamesSig);
-    
+
     if (vars.gnamesPtr == IntPtr.Zero) {
         print("[ASL] ⚠️ GNames AOB not found, trying fallback offset");
         vars.gnamesPtr = (IntPtr)((long)module.BaseAddress + 0x9152FC0L);
@@ -59,9 +59,8 @@ init
     });
 
     // ============ VALIDATE GNAMES (sanity check) ============
-    // Проверяем что по индексу 0..200 есть хоть одно служебное имя
     bool gnamesValid = false;
-    string[] knownNames = { "None", "ByteProperty", "IntProperty", "BoolProperty", 
+    string[] knownNames = { "None", "ByteProperty", "IntProperty", "BoolProperty",
                             "Object", "Class", "FloatProperty" };
     for (int i = 0; i < 200 && !gnamesValid; i++) {
         string s = vars.DecodeFName(i);
@@ -71,11 +70,10 @@ init
             }
         }
     }
-    
+
     if (!gnamesValid) {
         print("[ASL] ⚠️ GNames validation failed, trying fallback offset");
         vars.gnamesPtr = (IntPtr)((long)module.BaseAddress + 0x9152FC0L);
-        // Перепроверим
         for (int i = 0; i < 200 && !gnamesValid; i++) {
             string s = vars.DecodeFName(i);
             foreach (var known in knownNames) {
@@ -98,6 +96,9 @@ init
     });
 
     // ============ IS LOADING ============
+    //     may be useful later
+    //     IntPtr snapshot = game.ReadValue<IntPtr>((IntPtr)((long)gi + 0x220)); // SilasSnapshotSaveGame
+    //     if (snapshot != IntPtr.Zero) return true;
     vars.IsLoading = (Func<bool>)(() =>
     {
         try {
@@ -106,7 +107,9 @@ init
             IntPtr gi = game.ReadValue<IntPtr>((IntPtr)((long)uworld + 0x228));
             if (gi == IntPtr.Zero) return true;
             IntPtr loadingWidget = game.ReadValue<IntPtr>((IntPtr)((long)gi + 0x210));
-            return loadingWidget != IntPtr.Zero;
+            if (loadingWidget != IntPtr.Zero) return true;
+            long tail = game.ReadValue<long>((IntPtr)((long)uworld + 0x190));
+            return (tail >> 32) != 0;
         } catch { return false; }
     });
 }
@@ -115,44 +118,43 @@ update
 {
     current.map = vars.GetMap() ?? "";
     current.loading = vars.IsLoading();
-
-    // print(current.map + " || " + old.map + " || " + current.loading);
 }
 
 start
 {
     if (!((IDictionary<string, object>)old).ContainsKey("map")) return false;
-    
+
     string oldMap = old.map ?? "";
     string curMap = current.map ?? "";
+    timer.IsGameTimePaused = true;
     
     if (settings["ilmode"])
-        return oldMap == "MainMenu" && curMap != "MainMenu" && !string.IsNullOrEmpty(curMap);
-    
+        return oldMap.EndsWith("_Briefing") && oldMap != curMap;
+
     return oldMap != curMap && curMap == "E1M1";
 }
 
 split
 {
     if (!((IDictionary<string, object>)old).ContainsKey("map")) return false;
-    
+
     string oldMap = old.map ?? "";
     string curMap = current.map ?? "";
-    
+
     if (curMap == oldMap) return false;
     if (string.IsNullOrEmpty(curMap) || curMap == "None") return false;
-    
+
     return (curMap.EndsWith("_Briefing") && curMap != oldMap) || curMap == "DemoFinish";
 }
 
 reset
 {
     if (!((IDictionary<string, object>)old).ContainsKey("map")) return false;
-    
+
     string oldMap = old.map ?? "";
     string curMap = current.map ?? "";
-    
-    return curMap == "MainMenu" && oldMap != "MainMenu" && !string.IsNullOrEmpty(oldMap);
+
+    return curMap == "MainMenu" && oldMap != "" && !string.IsNullOrEmpty(oldMap);
 }
 
 isLoading
