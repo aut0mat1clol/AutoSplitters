@@ -1,4 +1,5 @@
 state("Silas-Win64-Test") { }
+state("Silas-Win64-Shipping") { }
 
 startup
 {
@@ -118,6 +119,11 @@ update
 {
     current.map = vars.GetMap() ?? "";
     current.loading = vars.IsLoading();
+    if (current.map != old.map)
+    {
+        print(old.map + " -> " + current.map);
+    }
+    
 }
 
 start
