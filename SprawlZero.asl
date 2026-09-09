@@ -123,7 +123,7 @@ init
         } catch { return IntPtr.Zero; }
     });
 
-    // Имя класса объекта: UObject +0x10 ClassPrivate -> UClass +0x18 FName
+    // UObject +0x10 ClassPrivate -> UClass +0x18 FName
     vars.GetObjectClassName = (Func<IntPtr, string>)((obj) =>
     {
         try {
