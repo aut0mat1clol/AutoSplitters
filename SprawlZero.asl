@@ -123,7 +123,7 @@ init
         } catch { return IntPtr.Zero; }
     });
 
-    // Имя класса объекта: UObject +0x10 ClassPrivate -> UClass +0x18 FName
+    // UObject +0x10 ClassPrivate -> UClass +0x18 FName
     vars.GetObjectClassName = (Func<IntPtr, string>)((obj) =>
     {
         try {
@@ -192,12 +192,12 @@ split
     var splitKeys = (IDictionary<string, object>)old;
     if (!splitKeys.ContainsKey("map")) return false;
 
-    // Начало катсцены E3M3: вселение в катсцен-пешку (внутри уровня, без смены карты)
+    // Epilogue Cutscene
     if (splitKeys.ContainsKey("pawnClass"))
     {
         string oldPawn = old.pawnClass ?? "";
         string curPawn = current.pawnClass ?? "";
-        if (curPawn != oldPawn && curPawn == "BP_CutscenePawn_E3M3_C")
+        if (curPawn != oldPawn && curPawn == "BP_CutscenePawn_Epilogue_C")
             return true;
     }
 
@@ -206,7 +206,7 @@ split
     if (curMap == oldMap) return false;
     if (string.IsNullOrEmpty(curMap) || curMap == "None") return false;
 
-    return curMap.Contains("_Briefing");
+    return curMap.Contains("_Briefing") || curMap == "Epilogue" || curMap == "E3M3";
 }
 
 reset
