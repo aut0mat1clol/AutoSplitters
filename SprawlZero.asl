@@ -182,7 +182,7 @@ start
     timer.IsGameTimePaused = true;
 
     if (settings["ilmode"])
-        return (oldMap.Contains("_Briefing") || curMap == "E3M3" ) && oldMap != curMap ;
+        return current.loading == false && current.loading != old.loading && !curMap.Contains("_Briefing");
 
     return oldMap != curMap && curMap == "E1M1";
 }
