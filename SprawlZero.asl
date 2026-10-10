@@ -10,6 +10,8 @@ startup
 
 init
 {
+    vars.visitedMaps = new Dictionary<string, bool>();
+
     var module = modules.First();
     var scanner = new SignatureScanner(game, module.BaseAddress, module.ModuleMemorySize);
 
@@ -206,7 +208,15 @@ split
     if (curMap == oldMap) return false;
     if (string.IsNullOrEmpty(curMap) || curMap == "None") return false;
 
-    return curMap.Contains("_Briefing") || curMap == "Epilogue" || curMap == "E3M3";
+    if (curMap.Contains("_Briefing") || curMap == "Epilogue" || curMap == "E3M3")
+    {
+        // If not in the dictionary, add it and split
+        if (!vars.visitedMaps.ContainsKey(curMap))
+        {
+            vars.visitedMaps[curMap] = true;
+            return true;
+        }
+    }
 }
 
 reset
@@ -217,6 +227,11 @@ reset
     string oldMap = old.map ?? "";
 
     return curMap == "MainMenu" && !string.IsNullOrEmpty(oldMap);
+}
+
+onStart
+{
+    vars.visitedMaps.Clear();
 }
 
 isLoading
